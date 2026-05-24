@@ -1,10 +1,6 @@
 #include "quanly.h"
-
 int main(){
-
     QuanLy ql;
-
-    ql.menu();
-
+    ql.role();
     return 0;
 }

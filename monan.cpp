@@ -1,16 +1,15 @@
 #include "monan.h"
+#include <iomanip>
+using namespace std;
 
+// ================= MON AN =================
 MonAn::MonAn(){
-
-    maMon = "";
-
     tenMon = "";
-
     gia = 0;
-
 }
-string MonAn::getMaMon(){
-    return maMon;
+void MonAn::setThongTin(string ten, double g){
+    tenMon = ten;
+    gia = g;
 }
 string MonAn::getTenMon(){
     return tenMon;
@@ -18,23 +17,6 @@ string MonAn::getTenMon(){
 double MonAn::getGia(){
     return gia;
 }
-void MonAn::setGia(double gia){
-    if(gia >= 0){
-        this->gia = gia;
-    }
-}
-void MonAn::nhap(){
-    cin.ignore();
-    cout << "Nhap ten mon: ";
-    getline(cin, tenMon);
-    cout << "Nhap gia: ";
-    cin >> gia;
-}
 void MonAn::xuat(){
-
-    cout << tenMon
-         << " - "
-         << gia
-         << endl;
+    cout << left << setw(25) << tenMon << gia << " VND"<<endl;
 }
-
