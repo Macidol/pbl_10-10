@@ -16,5 +16,6 @@ public:
     void TaoHoaDon();
     void xuatDanhSachHoaDon();
     void menu();
+    void luuMenuVaoFile();
 };
 #endif
