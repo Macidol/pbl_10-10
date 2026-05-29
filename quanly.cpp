@@ -84,7 +84,7 @@ void QuanLy::HienThiMenu() {
     int sohangmonan=(somonan+2)/3;
     for (int i = 0; i < sohangmonan; i++) {
         // In 3 cột món ăn tự động theo số hạng tính toán
-        for (int j = 0; j <= 3; j++) {
+        for (int j = 0; j < 3; j++) {
             int index = i + (j*sohangmonan);
             if (index < somonan) {
                 string giaKemDonVi = to_string((int)dsMon[index].getGia()) + "VND";
@@ -97,7 +97,6 @@ void QuanLy::HienThiMenu() {
         }
         cout << endl;
     }
-
     // ==================== PHẦN NƯỚC UỐNG (10 MÓN) ====================
 // ==================== PHẦN NƯỚC UỐNG ====================
 
@@ -206,6 +205,8 @@ void QuanLy::role(){
         cout << "2. Xoa mon an\n";
         cout << "3. Sua lai mon an\n";
         cout << "4. Tim mon an theo ten\n";
+        cout << "5. Xep lich cho nhan vien\n";
+        cout << "6. Hien thi lich truc\n";
         cout << "0. Dang xuat\n";
         cout << "Nhap lua chon: ";
         cin>>luachon;
@@ -219,11 +220,11 @@ void QuanLy::role(){
                     cin >> gia;
                     MonAn mon;
                     mon.setThongTin(ten, gia);
-                    dsMon.push_back(mon);
+                    dsMon.insert(dsMon.end()-10,mon);//thêm đúng logic món ăn
                     cout << "Them mon thanh cong!\n";
                     luuMenuVaoFile();
                 }
-                else if(luachon == 2){
+            else if(luachon == 2){
                     int id;
                     HienThiMenu();
                     cout << "Nhap ID mon can xoa: ";
@@ -235,7 +236,7 @@ void QuanLy::role(){
                     }
                     else{
                         cout << "ID khong hop le!\n";}}
-                else if(luachon == 3){
+            else if(luachon == 3){
                     int id;
                     HienThiMenu();
                     cout << "Nhap ID mon can sua: ";
@@ -249,10 +250,11 @@ void QuanLy::role(){
                         cout << "Nhap gia moi: ";
                         cin >> giaMoi;
                         dsMon[id - 1].setThongTin(tenMoi, giaMoi);
-                        cout << "Cap nhat thanh cong!\n";}
+                        cout << "Cap nhat thanh cong!\n";
+                    luuMenuVaoFile(); }
                     else{
                         cout << "ID khong hop le!\n";}}
-                          else if(luachon == 4){
+            else if(luachon == 4){
                     string tenTim;
                     cin.ignore();
                     cout << "Nhap ten mon can tim: ";
@@ -272,14 +274,38 @@ void QuanLy::role(){
                             timThay = true;}}
                     if(timThay == false){
                         cout << "Khong tim thay mon!\n";}}
-                      else if(luachon == 0){
+            else if(luachon==5){
+                this->quanLySapXepCa();
+            }
+            else if(luachon==6){
+                this->hienThiLichLamViec();
+            }
+            else if(luachon == 0){
                             cout << "Dang xuat thanh cong!\n";
                 }
                 else{
                             cout << "Lua chon khong hop le!\n";
                         }}while(luachon!=0 );}}
         else if(chon == 2){
-            
+            int nvchon;
+            string tenNV;
+            cin.ignore();
+            cout<<"moi nhap ten nhan vien: \n";
+            getline(cin, tenNV);
+ do{
+        cout << "\n======= NHAN VIEN =======\n";
+        cout << "1. Dang ky lich truc\n";
+        cout << "2. Xem lich lam viec chung\n";
+        cout << "0. Dang xuat\n";
+        cout << "Nhap lua chon: ";
+        cin>>nvchon;
+        if(nvchon==1){
+            this->nhanVienDangKyCa(tenNV);
+        }
+        if(nvchon==2){
+            this->hienThiLichLamViec();
+        }
+              }while(nvchon!=0);
         }
         else if(chon == 3){
             cout << "Xin chao khach hang!\n";
@@ -292,11 +318,101 @@ void QuanLy::role(){
     }
         else if(chon == 0){
             cout << "Cam on ban da su dung phan mem. Hen gap lai!\n";
-            break;
             system("pause");
+            break;
         }
         else{
-            cout << "Lua chon khong hop le. Vui long nhap lai!\n";
+            cout << "Lua chon khong hop le. Vui long nhap lai!\n";}}}
+void QuanLy::khoiTaoCacCaTruc() {
+    string cacThu[] = {"Thu 2", "Thu 3", "Thu 4", "Thu 5", "Thu 6", "Thu 7", "Chu Nhat"};
+    string cacTenCa[] = {"Ca Sang (6h-12h)", "Ca Chieu (12h-18h)", "Ca Toi (18h-23h)"};
+    dsCatructrongtuan.clear();//xóa bộ nhớ trước khi nạp
+    for (string thu : cacThu) { // duyệt vòng 1 qua từng thứ(lập cho tới hết chủ nhật)
+        for (int i = 0; i < 3; i++) {//duyệt xomg thứ thì qua duyệt các ca vd duyệt vòng 1 thứ 2 có 3 ca
+            catruc ca;
+            ca.idCa = i + 1;//gán ID ca(1,2 và 3)
+            ca.tenCa = cacTenCa[i];//gán tên ca tương ứng từ mảng cacTenCa
+            ca.thu = thu;//gán thứ tương ứng vòng lặp
+            dsCatructrongtuan.push_back(ca);//thêm ca vào vector tổng hợp
         }
     }
+}
+//HÀM NHÂN VIÊN ĐĂNG KÝ CA TRỰC
+void QuanLy::nhanVienDangKyCa(string tenNV) {
+    cout << "\n===== DANG KY CA TRUC CHO NHAN VIEN: " << tenNV << " =====\n";
+    // Hiển thị danh sách ca
+    for (int i = 0; i < dsCatructrongtuan.size(); i++) { 
+        cout << i + 1 << ". " << dsCatructrongtuan[i].thu //danh sách hiển thị ca trực chạy từ 0->21
+             << " - " << dsCatructrongtuan[i].tenCa << "\n";
+    }
+    cout << "\nNhap cac ID ca ban muon dang ky (cach nhau bang dau cach, an Enter de HOAN TAT): ";
+    string line;
+
+    // getline(cin >> ws, line) giúp xóa sạch ký tự '\n' còn kẹt ở đợt nhập trước
+    getline(cin >> ws, line); 
+    stringstream ss(line);
+    int chon;
+    bool coDangKy = false;
+    // Tách từng ID ra để xử lý, không sợ bị kẹt dòng
+    while (ss >> chon) { 
+        if (chon >= 1 && chon <= dsCatructrongtuan.size()) { 
+            dsCatructrongtuan[chon - 1].dsnhanviendangky.push_back(tenNV);
+            cout << "  -> Da ghi nhan nguyen vong ca [" << chon << "]\n";
+            coDangKy = true;
+        } else {
+            cout << "  -> ID ca [" << chon << "] khong hop le! (Bo qua)\n";
+        }
+    }
+    if (coDangKy) {
+        cout << "==> Dang ky ca hoan tat!\n";
+    } else {
+        cout << "==> Ban chua dang ky ca nao.\n";
+    }
+}
+void QuanLy::quanLySapXepCa() {
+    cout << "\n======= QUAN LY SAP XEP CA TRUC =======\n";
+    for (int i = 0; i < dsCatructrongtuan.size(); i++) {
+        catruc &ca = dsCatructrongtuan[i];
+        cout << "\n[" << i + 1 << "] " << ca.thu << " - " << ca.tenCa << "\n";
+        // Hiện danh sách nhân viên đã đăng ký ca này
+        //hàm emty kiểm tra danh sách nvdangky có bị trống hay không và nhanvientrucchinhthuc có hay không
+        // nghĩa là nó sẽ hiện ra có ai muốn làm ca này và ca nào đã có nhân viên đăng kí hay chưa 
+        cout << "   Nhan vien dang ky: ";
+        if (ca.dsnhanviendangky.empty()) cout << "(Trong)";
+        for (string nv : ca.dsnhanviendangky) cout << nv << " | ";
+        cout << "\n";
+        // Hiện danh sách đã được duyệt trước đó (nếu có)
+        cout << "   Chinh thuc hien tai: ";
+        if (ca.dsnhanvientrucchinhthuc.empty()) cout << "(Chua co)";
+        for (string nv : ca.dsnhanvientrucchinhthuc) cout << nv << " | ";
+        cout << "\n";
+        // Tiến hành sắp xếp
+        int luaChon;
+        cout << "   1. Them NV vao ca nay | 2. Bo qua ca nay: ";
+        cin >> luaChon;
+        if (luaChon == 1) {
+            string tenNV;
+            cin.ignore();
+            cout << "   Nhap ten nhan vien chinh thuc cho ca nay: ";
+            getline(cin, tenNV);
+            ca.dsnhanvientrucchinhthuc.push_back(tenNV);
+            cout << "   => Da xep " << tenNV << " vao ca lam chinh thuc!\n";}}
+    cout << "\nDa hoan thanh sap xep lich truc cho toan bo cac ca!\n";
+    //lặp lại 21 ca trực để chọn nhân viên
+}
+void QuanLy::hienThiLichLamViec() {
+    cout << "\n==================== LICH LAM VIEC CHINH THUC BIEU ====================\n";
+    for (const auto& ca : dsCatructrongtuan) {
+        // auto là từ khóa yêu cầu C++ tự động nhận diện kiểu dữ liệu (ở đây là catruc)
+        //const yêu cầu trình biên dịch chỉ xem thông tin chứ không dùng để thay đổi dữ liệu của ca trực
+        //=> yêu cầu lấy ca trực để xem chỉ xem và không sửa
+        cout << left << setw(12) << ca.thu 
+             << left << setw(25) << ca.tenCa << " -> NV Chinh thuc: ";
+        if (ca.dsnhanvientrucchinhthuc.empty()) { //emty tìm ra nếu ca trực chưa có ai thì in là chưa xếp lịch
+            cout << "CHUA XEP LICH\n";
+        } else {
+            for (string nv : ca.dsnhanvientrucchinhthuc) {
+                cout << nv << "   ";}
+            cout << "\n";}}
+    cout << "========================================================================\n";
 }
