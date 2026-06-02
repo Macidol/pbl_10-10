@@ -2,6 +2,69 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+void QuanLy::luuCaTrucVaoFile() {
+    ofstream file("lichtruc.txt"); 
+    if (file.is_open()) {
+        for (int i = 0; i < dsCatructrongtuan.size(); i++) {
+            // Định dạng: Thứ|ID|Tên Ca|Danh sách đăng ký|Danh sách chính thức
+            file << dsCatructrongtuan[i].thu << "|"
+                 << dsCatructrongtuan[i].idCa << "|"
+                 << dsCatructrongtuan[i].tenCa << "|";
+            // Ghi danh sách nhân viên ĐĂNG KÝ (ngăn cách bằng dấu phẩy)
+            for (size_t j = 0; j < dsCatructrongtuan[i].dsnhanviendangky.size(); j++) {
+                file << dsCatructrongtuan[i].dsnhanviendangky[j];
+                if (j < dsCatructrongtuan[i].dsnhanviendangky.size() - 1) file << ",";
+            }
+            file << "|";
+            // Ghi danh sách nhân viên CHÍNH THỨC (ngăn cách bằng dấu phẩy)
+            for (size_t j = 0; j < dsCatructrongtuan[i].dsnhanvientrucchinhthuc.size(); j++) {
+                file << dsCatructrongtuan[i].dsnhanvientrucchinhthuc[j];
+                if (j < dsCatructrongtuan[i].dsnhanvientrucchinhthuc.size() - 1) file << ",";
+            }
+            file << endl;
+        }
+        file.close();
+    } else {
+        cout << "Loi: Khong the mo file lichtruc.txt de ghi du lieu!\n";
+    }
+}
+void QuanLy::docCaTrucTuFile() {
+    ifstream file("lichtruc.txt");
+    if (file.is_open()) {
+        dsCatructrongtuan.clear(); // Xóa dữ liệu cũ trên RAM
+        string line;
+        while (getline(file, line)) {//đọc từng dòng hết 1 dòng xử lí 1 ca
+            if (line.empty()) continue;
+            stringstream ss(line);//biến chũi của dòng thành một luồng dữ liệu để có thể trích xuất
+            catruc ca;
+            string idStr, dsDangKyStr, dsChinhThucStr;
+            // Tách các trường bằng dấu '|'
+            getline(ss, ca.thu, '|');
+            getline(ss, idStr, '|');
+            ca.idCa = stoi(idStr);
+            getline(ss, ca.tenCa, '|');
+            getline(ss, dsDangKyStr, '|');
+            getline(ss, dsChinhThucStr);
+            // Tách danh sách nhân viên đăng ký bằng dấu ','
+            stringstream ssDK(dsDangKyStr);//sau khi lấy chũi tên nhân viên ở trên nạp lại vào một stringstream mới tên là ssDK
+            string nvDK;
+            while (getline(ssDK, nvDK, ',')) {
+                if (!nvDK.empty()) ca.dsnhanviendangky.push_back(nvDK);//nạp vào vector
+            }
+            // Tách danh sách nhân viên chính thức bằng dấu ','
+            stringstream ssCT(dsChinhThucStr);//tươmg tự như trên để nạp vào nvCThuc
+            string nvCT;
+            while (getline(ssCT, nvCT, ',')) {
+                if (!nvCT.empty()) ca.dsnhanvientrucchinhthuc.push_back(nvCT);//nạp hết vào vetor tổng
+            }
+            dsCatructrongtuan.push_back(ca);
+        }
+        file.close();
+    } else {
+        // Nếu file chưa tồn tại (lần đầu chạy), tự động khởi tạo mặc định trống
+        this->khoiTaoCacCaTruc();
+    }
+}
 void QuanLy::luuMenuVaoFile(){
     ofstream file("menu.txt"); 
     if (file.is_open()) {
@@ -167,6 +230,7 @@ void QuanLy::TaoHoaDon(){
     }
 }
 void QuanLy::role(){
+    this->docCaTrucTuFile();
     int chon;
     while(true){
         cout << "\n===== Burger Cortis Restaurant =====\n";
@@ -365,6 +429,7 @@ void QuanLy::nhanVienDangKyCa(string tenNV) {
     }
     if (coDangKy) {
         cout << "==> Dang ky ca hoan tat!\n";
+        this->luuCaTrucVaoFile();
     } else {
         cout << "==> Ban chua dang ky ca nao.\n";
     }
@@ -398,6 +463,7 @@ void QuanLy::quanLySapXepCa() {
             ca.dsnhanvientrucchinhthuc.push_back(tenNV);
             cout << "   => Da xep " << tenNV << " vao ca lam chinh thuc!\n";}}
     cout << "\nDa hoan thanh sap xep lich truc cho toan bo cac ca!\n";
+    this->luuCaTrucVaoFile();
     //lặp lại 21 ca trực để chọn nhân viên
 }
 void QuanLy::hienThiLichLamViec() {
