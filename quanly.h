@@ -22,5 +22,7 @@ public:
     void nhanVienDangKyCa(string tenNV); // Hàm cho nhân viên chọn ca
     void quanLySapXepCa();           // Hàm cho quản lý duyệt và sắp xếp
     void hienThiLichLamViec();       // Hàm xem lịch trực chung
+    void luuCaTrucVaoFile();
+    void docCaTrucTuFile();
 };
 #endif
